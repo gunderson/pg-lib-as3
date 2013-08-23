@@ -1,0 +1,43 @@
+<languageVersion : 1.0;>
+
+kernel Scanlines
+<   namespace : "b-reel scanlines";
+    vendor : "B-Reel";
+    version : 1;
+>
+{
+    input image4 src;
+    output pixel4 dst;
+    
+    
+    parameter int cycleSize
+    < 
+       minValue:int(0);
+       maxValue:int(50);
+       defaultValue:int(3);
+    >;
+    parameter float minMultiplier
+    < 
+       minValue:float(0.0);
+       maxValue:float(1.0);
+       defaultValue:float(0.5);
+    >; 
+    parameter float offsetY
+    < 
+       defaultValue:float(0.0);
+    >; 
+    
+
+    void
+    evaluatePixel()
+    {
+        float2 outCoords=outCoord();
+        float range = 1.0 - minMultiplier;
+        float multiplier = ((mod(outCoords[1] + offsetY,float(cycleSize)) / float(cycleSize)) * range) + minMultiplier ;
+        
+        dst = sampleNearest(src,outCoords);
+        dst.r = dst.r * multiplier;
+        dst.g = dst.g * multiplier;
+        dst.b = dst.b * multiplier;
+    }
+}

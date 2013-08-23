@@ -1,0 +1,52 @@
+<languageVersion : 1.0;>
+
+kernel PixelRelationMap
+<   namespace : "b-reel";
+    vendor : "B-Reel";
+    author : "Patrick GUnderson";
+    version : 0;
+    description : "Image processor for "; >
+{
+   input image4 timemap;
+   input image4 frames;
+
+   parameter int zeroFrame
+   < minValue: 0;
+     maxValue: 127;
+     defaultValue: 0;
+   >;
+   parameter float frameWidth
+   < minValue: 1.0;
+     maxValue: 2560.0;
+     defaultValue: 640.0;
+     stepInterval: 1.0;
+   >;
+   parameter float numFrames
+   < minValue: 1.0;
+     maxValue: 2560.0;
+     defaultValue: 4.0;
+     stepInterval: 1.0;
+   >;
+   
+   output pixel4 dst;
+   
+   void evaluatePixel()
+   {
+        // Acquire the pixel values from both images at the current location
+        float4 timemapPixel = sampleNearest(timemap, outCoord());
+        //float frameWidth = pixelSize(bumpmap).x;
+        //float numFrames = pixelSize(frames).x / frameWidth;
+        float frameId = floor(numFrames * (timemapPixel.r - 0.001));
+        if (frameId < 0.0) {
+            frameId = 0.0;
+        };
+        float2 srcCoord = float2(outCoord().x + (( float(zeroFrame) - frameId) * frameWidth), outCoord().y);
+        
+        if (srcCoord.x < 0.0){
+            srcCoord.x += numFrames * frameWidth;
+        }
+        
+        dst = sampleNearest(frames, srcCoord);
+        
+   }
+}

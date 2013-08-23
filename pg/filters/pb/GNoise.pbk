@@ -1,0 +1,130 @@
+<languageVersion : 1.0;>
+
+kernel GNoise
+<   namespace : "PG";
+    vendor : "Patrick Gunderson";
+    version : 1;
+    description : "Gunderson Noise";
+    >
+{
+   parameter float xStartValue
+   <
+    defaultValue: 1.0;
+    >;
+   parameter float yStartValue
+   <
+    defaultValue: 1.0;
+    >;
+   parameter float wavelengthX0
+   <
+    minValue: 0.0;
+    maxValue: 100.0;
+    defaultValue: 1.0;
+    >;
+   parameter float wavelengthY0
+   <
+    minValue: 0.0;
+    maxValue: 100.0;
+    defaultValue: 1.0;
+    >;
+   parameter float periodX0
+   <
+    minValue: 0.0;
+    maxValue: 1.0;
+    defaultValue: 0.0;
+    >;
+   parameter float periodY0
+   <
+    minValue: 0.0;
+    maxValue: 1.0;
+    defaultValue: 0.0;
+    >;
+   parameter float wavelengthX1
+   <
+    minValue: 0.0;
+    maxValue: 100.0;
+    defaultValue: 1.0;
+    >;
+   parameter float wavelengthY1
+   <
+    minValue: 0.0;
+    maxValue: 100.0;
+    defaultValue: 1.0;
+    >;
+   parameter float periodX1
+   <
+    minValue: 0.0;
+    maxValue: 1.0;
+    defaultValue: 0.0;
+    >;
+   parameter float periodY1
+   <
+    minValue: 0.0;
+    maxValue: 1.0;
+    defaultValue: 0.0;
+    >;
+   parameter float wavelengthX2
+   <
+    minValue: 0.0;
+    maxValue: 100.0;
+    defaultValue: 1.0;
+    >;
+   parameter float wavelengthY2
+   <
+    minValue: 0.0;
+    maxValue: 100.0;
+    defaultValue: 1.0;
+    >;
+   parameter float periodX2
+   <
+    minValue: 0.0;
+    maxValue: 1.0;
+    defaultValue: 0.0;
+    >;
+   parameter float periodY2
+   <
+    minValue: 0.0;
+    maxValue: 1.0;
+    defaultValue: 0.0;
+    >;
+    parameter float whiteLevel
+   <
+    minValue: 0.0;
+    maxValue: 1.0;
+    defaultValue: 1.0;
+    >;
+    parameter float blackLevel
+   <
+    minValue: 0.0;
+    maxValue: 1.0;
+    defaultValue: 0.0;
+    >;
+
+   input image4 frontImage;
+   output pixel4 dst;
+   
+   void evaluatePixel()
+   {
+        float2 coord = outCoord();
+        float xValue;
+        float yValue;
+        float xWave;
+        float yWave;
+        float outvalue;
+        
+        pixel4 p = sampleNearest(frontImage, outCoord());
+        p.a = 0.0;
+        
+        xWave = wavelengthX0 + wavelengthX1 + wavelengthX2;
+        yWave = wavelengthY0 + wavelengthY1 + wavelengthY2;
+        
+        xValue = (1.0 + ((wavelengthX0 / xWave) * cos(xStartValue + (periodX0 * coord.x)))) * 0.5;
+        xValue = xValue + (1.0 + ((wavelengthX1 / xWave) * cos(xStartValue + (periodX1 * coord.x)))) * 0.5;
+        xValue = xValue + (1.0 + ((wavelengthX2 / xWave) * cos(xStartValue + (periodX2 * coord.x)))) * 0.5;
+        yValue = (1.0 + ((wavelengthY0 / yWave) * cos(yStartValue + (periodY0 * coord.y)))) * 0.5;
+        yValue = yValue + (1.0 + ((wavelengthY1 / yWave) * cos(yStartValue + (periodY1 * coord.y)))) * 0.5;
+        yValue = yValue + (1.0 + ((wavelengthY2 / yWave) * cos(yStartValue + (periodY2 * coord.y)))) * 0.5;
+        outvalue = (((xValue + yValue) / 6.0) - blackLevel) / (whiteLevel - blackLevel);
+        dst = pixel4(outvalue, outvalue, outvalue, 1.0);
+   }
+}

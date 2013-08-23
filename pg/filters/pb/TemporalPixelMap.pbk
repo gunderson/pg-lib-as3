@@ -1,0 +1,51 @@
+<languageVersion : 1.0;>
+
+kernel PixelRelationMap
+<   namespace : "b-reel";
+    vendor : "B-Reel";
+    author : "Patrick GUnderson";
+    version : 0.2;
+    description : "Temporal displacement map"; >
+{
+   input image4 timemap;
+   input image4 colormap;
+
+   parameter float zeroFrame
+   < minValue: 0.0;
+     maxValue: 127.0;
+     defaultValue: 0.0;
+   >;
+   parameter float frameWidth
+   < minValue: 1.0;
+     maxValue: 2560.0;
+     defaultValue: 640.0;
+     stepInterval: 1.0;
+   >;
+   parameter float numFrames
+   < minValue: 1.0;
+     maxValue: 2560.0;
+     defaultValue: 4.0;
+     stepInterval: 1.0;
+   >;
+   
+   output pixel4 dst;
+   
+   void evaluatePixel()
+   {
+        // Acquire the pixel values from both images at the current location
+        float4 timemapPixel = sampleNearest(timemap, outCoord());
+        float frameId = floor(numFrames * (timemapPixel.g - 0.001));
+        if (frameId < 0.0) {
+            frameId = 0.0;
+        };
+        float2 srcCoord = float2(outCoord().x + (( zeroFrame - frameId) * frameWidth), outCoord().y);
+        
+        if (srcCoord.x < 0.0){
+            srcCoord.x += numFrames * frameWidth;
+        }
+        
+        
+        dst = sampleNearest(colormap, srcCoord);
+        
+   }
+}

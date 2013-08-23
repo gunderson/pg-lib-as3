@@ -1,0 +1,144 @@
+<languageVersion : 1.0;>
+
+kernel RGBDistortion
+< namespace : "RGB Distort";
+author : "Patrick Gunderson";
+vendor : "B-reel";
+version : 1;
+description : "RGB offset with wave distortion";
+>
+{
+  input image4 src;
+  output pixel4 dst;
+
+  parameter float rOffsetX
+< 
+   minValue:float(-50.0);
+   maxValue:float(50.0);
+   defaultValue:float(0.0);
+>; 
+
+  parameter float rOffsetY
+< 
+   minValue:float(-50.0);
+   maxValue:float(50.0);
+   defaultValue:float(0.0);
+>; 
+
+  parameter float gOffsetX
+< 
+   minValue:float(-50.0);
+   maxValue:float(50.0);
+   defaultValue:float(0.0);
+>;
+
+  parameter float gOffsetY
+< 
+   minValue:float(-50.0);
+   maxValue:float(50.0);
+   defaultValue:float(0.0);
+>;
+
+  parameter float bOffsetX
+< 
+   minValue:float(-50.0);
+   maxValue:float(50.0);
+   defaultValue:float(0.0);
+>; 
+
+  parameter float bOffsetY
+< 
+   minValue:float(-50.0);
+   maxValue:float(50.0);
+   defaultValue:float(0.0);
+>; 
+
+  parameter float rWaveFrequency
+< 
+   minValue:float(-50.0);
+   maxValue:float(50.0);
+   defaultValue:float(0.0);
+>;
+  parameter float rWaveAmplitude
+< 
+   minValue:float(-50.0);
+   maxValue:float(50.0);
+   defaultValue:float(0.0);
+>; 
+  parameter float gWaveFrequency
+< 
+   minValue:float(-50.0);
+   maxValue:float(50.0);
+   defaultValue:float(0.0);
+>;
+  parameter float gWaveAmplitude
+< 
+   minValue:float(-50.0);
+   maxValue:float(50.0);
+   defaultValue:float(0.0);
+>; 
+  parameter float bWaveFrequency
+< 
+   minValue:float(-50.0);
+   maxValue:float(50.0);
+   defaultValue:float(0.0);
+>;
+  parameter float bWaveAmplitude
+< 
+   minValue:float(-50.0);
+   maxValue:float(50.0);
+   defaultValue:float(0.0);
+>; 
+
+  parameter float rValue
+< 
+   minValue:float(0.0);
+   maxValue:float(2.0);
+   defaultValue:float(1.0);
+>; 
+  parameter float gValue
+< 
+   minValue:float(0.0);
+   maxValue:float(2.0);
+   defaultValue:float(1.0);
+>; 
+  parameter float bValue
+< 
+   minValue:float(0.0);
+   maxValue:float(2.0);
+   defaultValue:float(1.0);
+>; 
+
+
+  void evaluatePixel()
+  {
+    float2 outCoords=outCoord();
+
+    float2 redPos=outCoords;
+    float rWaveOffset =  sin(outCoords[1] * rWaveFrequency) * rWaveAmplitude;
+    redPos[0] += (rOffsetX + rWaveOffset);
+    redPos[1] += rOffsetY;
+    float4 inputColorR = sample(src,redPos);
+    dst.r = inputColorR.r * rValue;
+
+    float2 greenPos=outCoords;
+    float gWaveOffset =  sin(outCoords[1] * gWaveFrequency) * gWaveAmplitude;
+    greenPos[0] += (gOffsetX + gWaveOffset);
+    greenPos[1] += gOffsetY;
+    float4 inputColorG = sample(src,greenPos);
+    dst.g = inputColorG.g * gValue;
+    
+    float bWaveOffset = sin(outCoords[1] * bWaveFrequency) * bWaveAmplitude;
+    float2 bluePos=outCoords;
+    bluePos[0] += (bOffsetX + bWaveOffset);
+    bluePos[1] += bOffsetY;
+    float4 inputColorB = sample(src,bluePos);
+    dst.b = inputColorB.b * bValue;
+    
+    if (dst.r == 0.0 || dst.b == 0.0){
+        dst.g == 0.0;
+    }
+    
+    dst.a = (inputColorR.a + inputColorG.a + inputColorB.a) / 3.0;
+  }
+}
