@@ -22,7 +22,7 @@
 		private var fileName:String;
 		private var frameIndex:Number = 0;
 		private var frameCaches:Vector.<Vector.<BitmapData>>;
-		public var layout:String = 'vert';
+		public var layout:String = 'horiz';
 		public var output:String = 'spritesheet';
 		public var startTime:Number = 0;
 		private var _sizes:Array = [1];
@@ -108,11 +108,11 @@
 			var scaleText:String = '';
 			var frameCache;
 			var i,len;
-			
 			for (var fc = 0, fclen=frameCaches.length; fc < fclen; fc++){
 				startTime = getTimer();
 				frameCache = frameCaches[fc];
 				scaleText = frameCache[0].width;
+				totalSize = 0;
 				for (i=0, len=frameCache.length; i < len; i++){
 					byteArray = PNGEncoder.encode(frameCache[i]);
 					file = fileFolder.resolvePath("exports/"+ scaleText + "/" + this.fileName + "_"  + matchLength(i,frameCache.length) + ".png");
@@ -128,7 +128,7 @@
 					"  - " + i + " frames\n",
 					"  - " + _sizes[fc] + "x\n",
 					"  - " + frameCache[0].width + "x"+ frameCache[0].height +" \n",
-					"  - total size " + (totalSize / 1024) + "kb\n",
+					"  - total size " + (totalSize >> 10) + "kb\n",
 					"  - in " + ((getTimer() - startTime)/1000) + " seconds"
 				);
 			}
@@ -159,9 +159,14 @@
 				
 				frameWidth = frameCache[0].width;
 				frameHeight = frameCache[0].height;
-			
-				dx = (layout == FrameExporter.HORIZONTAL) ? frameWidth : 0;
-				dy = (layout == FrameExporter.HORIZONTAL) ? 0 : frameHeight;
+				
+				if (layout == FrameExporter.HORIZONTAL) {
+					dx = frameWidth;
+					dy = 0;
+				} else {
+					dx = 0;
+					dy = frameHeight;
+				}
 			
 				bmd = new BitmapData(frameWidth + (dx * (frameCache.length - 1)), frameHeight  + (dy * (frameCache.length - 1)), true, 0);
 				sourceRect = new Rectangle(0,0,frameWidth, frameHeight);
@@ -184,7 +189,7 @@
 					"  - " + i + " frames\n",
 					"  - " + _sizes[fc] + "x\n",
 					"  - " + frameCache[0].width + "x"+ frameCache[0].height +" \n",
-					"  - " + (file.size / 1024) + 'kb\n',
+					"  - " + (file.size >> 10) + 'kb\n',
 					"  - in " + ((getTimer() - startTime)/1000) + " seconds"
 				);
 			}
