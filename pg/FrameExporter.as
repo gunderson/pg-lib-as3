@@ -36,10 +36,12 @@
 			frameCache = new Vector.<BitmapData>();
 		}
 		
-		public function start():void{
+		public function start(waitUntilNextFrame:Boolean = true):void{
 			this.frameIndex = 0;
 			this.stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
-			this.onEnterFrame();
+			if (!waitUntilNextFrame){
+				this.onEnterFrame();
+			}
 		}
 		
 		public function stop(flush:Boolean = true):void{

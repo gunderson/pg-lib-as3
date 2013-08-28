@@ -1,10 +1,11 @@
 package pg.utils {
-	import flash.geom.Rectangle;
+	import com.demonsters.debugger.MonsterDebugger;
+	
 	import flash.display.DisplayObject;
+	import flash.display.DisplayObjectContainer;
 	import flash.display.FrameLabel;
 	import flash.display.MovieClip;
-	import com.demonsters.debugger.MonsterDebugger;
-	import flash.display.DisplayObjectContainer;
+	import flash.geom.Rectangle;
 	/**
 	 * @author patrickgunderson
 	 */
@@ -34,11 +35,20 @@ package pg.utils {
 		}
 		
 		public static function clone(object:Object):Object{
-			var clone:Object = {};
-			for (var prop:* in object){
-				clone[prop] = object[prop];
+			return ObjectUtils.extend({}, object);
+		}
+		
+		public static function extend(toObject:Object, ...rest):Object{
+			var i:int = 0, 
+				endi = arguments.length;
+				fromObject:Object;
+			while (++i < endi){
+				fromObject = arguments[i];
+				for (var prop:* in fromObject){
+					toObject[prop] = fromObject[prop];
+				}
 			}
-			return clone;
+			return toObject;
 		}
 		
 		public static function moveRegistrationPointBy(container:DisplayObjectContainer, x:Number, y:Number):void{
